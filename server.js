@@ -35,4 +35,9 @@ app.use('/api/categories', categoryRoutes);
 app.use(errorMiddleware);
 
 // Start the server
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const server = app.listen(process.env.PORT || 10000, () => {
+  console.log(`Server running on port ${process.env.PORT || 10000}`);
+});
+
+server.keepAliveTimeout = 120000;  // 120 seconds
+server.headersTimeout = 120000;    // 120 seconds
