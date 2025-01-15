@@ -16,7 +16,7 @@ const app = express();
 
 // CORS configuration to allow frontend URL
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' ? 'https://walletapp-9wli.onrender.com' : 'http://localhost:3000',
+  origin: process.env.NODE_ENV === 'production' ? 'https://walletappfront.pages.dev' : 'http://localhost:3000',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true  // Allow credentials (cookies, etc.)
 };
