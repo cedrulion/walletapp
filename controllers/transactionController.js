@@ -11,21 +11,38 @@ const getTransactions = asyncHandler(async (req, res) => {
 // Create a transaction
 const createTransaction = asyncHandler(async (req, res) => {
     const { account, type, amount, category } = req.body;
-    const transactionData = { account, type, amount };
+
+    // Fetch account details to include account type
+    const accountToUpdate = await Account.findById(account);
+    if (!accountToUpdate) {
+        return res.status(404).json({ message: 'Account not found' });
+    }
+
+    const transactionData = {
+        account,
+        type,
+        amount,
+        accountType: accountToUpdate.type, // Add account type
+    };
 
     if (type === 'Expense' && category) {
         transactionData.category = category;
     }
 
+    // Save transaction
     const transaction = new Transaction(transactionData);
     await transaction.save();
 
-    const accountToUpdate = await Account.findById(account);
-    if (type === 'Income') accountToUpdate.balance += amount;
-    else accountToUpdate.balance -= amount;
+    // Update account balance
+    if (type === 'Income') {
+        accountToUpdate.balance += amount;
+    } else {
+        accountToUpdate.balance -= amount;
+    }
     await accountToUpdate.save();
 
     res.status(201).json(transaction);
 });
+;
 
 module.exports = { getTransactions, createTransaction };
