@@ -20,25 +20,49 @@ export const createAccount = async (req, res) => {
     const { name, email, type, balance, password } = req.body;
 
     try {
-        // Hash the password before saving it
+        // Check if the user exists
+        let userAccount = await Account.findOne({ email });
+
+        if (userAccount) {
+            // Check if the account type already exists
+            const accountIndex = userAccount.accounts.findIndex(
+                (account) => account.type === type
+            );
+
+            if (accountIndex >= 0) {
+                // Update the balance of the existing account type
+                userAccount.accounts[accountIndex].balance += balance;
+            } else {
+                // Add a new account type if it doesn't exist
+                if (userAccount.accounts.length >= 3) {
+                    return res.status(400).json({
+                        message: 'You can only create up to three accounts with the same email.',
+                    });
+                }
+
+                userAccount.accounts.push({ type, balance });
+            }
+
+            await userAccount.save();
+            return res.status(200).json(userAccount);
+        }
+
+        // Create a new account if none exists
         const hashedPassword = await hashPassword(password);
 
-        const account = new Account({
+        const newAccount = new Account({
             name,
-            type,
             email,
-            balance,
-            password: hashedPassword, // Store the hashed password
+            accounts: [{ type, balance }],
+            password: hashedPassword,
         });
 
-        await account.save();
-        res.status(201).json(account);
+        await newAccount.save();
+        res.status(201).json(newAccount);
     } catch (error) {
-        res.status(500).json({ message: 'Error creating account', error });
+        res.status(500).json({ message: 'Error creating or updating account', error });
     }
 };
-
-// Login account
 // Login account
 export const loginAccount = async (req, res) => {
     const { email, password } = req.body;
