@@ -1,6 +1,4 @@
-
-//model
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const accountSchema = new mongoose.Schema({
     name: { type: String, required: true },
@@ -14,6 +12,4 @@ const accountSchema = new mongoose.Schema({
     password: { type: String, required: true },
 });
 
-const Account = mongoose.model('Account', accountSchema);
-
-export default Account;
+module.exports = mongoose.model('Account', accountSchema);
